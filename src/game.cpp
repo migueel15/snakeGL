@@ -103,12 +103,13 @@ void Game::render() {
   glDrawArrays(GL_POINTS, 0, vertices.size()); // borrar despues
 }
 
-void Game::updateVertices(Snake &snake) {
+void Game::updateVertices(Snake &snake, Food &food) {
   vertices.clear();
   std::vector<glm::vec2> positions = snake.getSnakePositions();
   for (int i = 0; i < positions.size(); i++) {
     vertices.push_back(positions[i]);
   }
+  vertices.push_back(food.getNormalisedFood());
 }
 
 void Game::sleep(int milliseconds) {
@@ -130,6 +131,46 @@ void Game::checkInput(Snake &snake) {
   }
 }
 
+void Game::checkCollision(Snake &snake, Food &food) {
+  if (snake.segments[0].position.x >= BOARD_WIDTH) {
+    snake.segments[0].position.x = 0;
+  }
+  if (snake.segments[0].position.x < 0) {
+    snake.segments[0].position.x = BOARD_WIDTH;
+  }
+  if (snake.segments[0].position.y >= BOARD_HEIGHT) {
+    snake.segments[0].position.y = 0;
+  }
+  if (snake.segments[0].position.y < 0) {
+    snake.segments[0].position.y = BOARD_HEIGHT;
+  }
+
+  if (snake.segments[0].position.x == food.getPos().x &&
+      snake.segments[0].position.y == food.getPos().y) {
+    snake.appendToSnake();
+    food.init();
+  }
+
+  for (int i = 1; i < snake.segments.size(); i++) {
+    if (snake.segments[0].position.x == snake.segments[i].position.x &&
+        snake.segments[0].position.y == snake.segments[i].position.y) {
+      snake.init();
+      snake.appendToSnake();
+      snake.appendToSnake();
+      snake.appendToSnake();
+      food.init();
+    }
+  }
+}
+
+void Game::debugSnake(Snake &snake, Food &food) {
+  std::cout << "Snake: " << snake.segments[0].position.x << " "
+            << snake.segments[0].position.y << std::endl;
+  std::cout << "Food: " << food.getPos().x << " " << food.getPos().y
+            << std::endl;
+  std::cout << "----------------" << std::endl;
+}
+
 void check_exit() {
   if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
@@ -139,23 +180,29 @@ void check_exit() {
 int main(int argc, char *argv[]) {
   Game game;
   Snake snake;
-  // Food food;
+  Food food;
   snake.init();
   snake.appendToSnake();
   snake.appendToSnake();
   snake.appendToSnake();
-  // food.init();
+  food.init();
 
+  double lastTime = glfwGetTime();
   while (!glfwWindowShouldClose(glfwGetCurrentContext())) {
+    double currentTime = glfwGetTime();
     check_exit();
     game.checkInput(snake);
     game.render();
-    snake.move();
-    game.updateVertices(snake);
+    game.updateVertices(snake, food);
+    if (currentTime - lastTime > SNAKE_VELOCITY) {
+      snake.move();
+      game.checkCollision(snake, food);
+      game.debugSnake(snake, food);
+      lastTime = currentTime;
+    }
 
     glfwSwapBuffers(glfwGetCurrentContext());
     glfwPollEvents();
-    game.sleep(500);
   }
 
   glfwTerminate();
