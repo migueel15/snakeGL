@@ -31,6 +31,10 @@ public:
   void move();
   void changeDirection(Direction direction);
   std::vector<glm::vec2> getSnakePositions();
+  //TODO: getters and setters
+  // int getScore();
+  // int getSize();
+  // std::deque<SnakeSegment> getSegments();
 
   float width;
   int score;

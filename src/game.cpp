@@ -43,11 +43,33 @@ Game::Game() {
   // glEnableVertexAttribArray(0);
 
   const char *vertexShaderSource = "#version 330 core\n"
-                                   "layout (location = 0) in vec2 pos;\n"
+                                   "layout (location = 0) in vec2 position;\n"
                                    "void main()\n"
                                    "{\n"
-                                   "   gl_Position = vec4(pos,0.0,1.0);\n"
+                                   "   gl_Position = vec4(position,0.0,1.0);\n"
                                    "}\0";
+
+// geometry shader that will get a point and render a square around it with size SNAKE_SIZE
+  const char *geometryShaderSource = "#version 330 core\n"
+                                     "layout (points) in;\n"
+                                     "layout (triangle_strip, max_vertices = 4) out;\n"
+                                     "uniform float size;\n"
+                                     "void buildSquare(vec4 position) {"
+                                     "  gl_Position = position + vec4(-size, -size, 0.0, 0.0);\n"
+                                     "  EmitVertex();\n"
+                                     "  gl_Position = position + vec4(-size, size, 0.0, 0.0);\n"
+                                     "  EmitVertex();\n"
+                                     "  gl_Position = position + vec4(size, -size, 0.0, 0.0);\n"
+                                     "  EmitVertex();\n"
+                                     "  gl_Position = position + vec4(size, size, 0.0, 0.0);\n"
+                                     "  EmitVertex();\n"
+                                     "  EndPrimitive();\n"
+                                     "}\n"
+                                     "void main() {"
+                                     "  buildSquare(gl_in[0].gl_Position);"
+                                     "}\0";
+
+
 
   const char *fragmentShaderSource = "#version 330 core\n"
                                      "out vec4 FragColor;\n"
@@ -56,24 +78,36 @@ Game::Game() {
                                      "   FragColor = vec4(1.0,1.0,1.0, 0.0f);\n"
                                      "}\0";
 
+
   unsigned int vertexShader;
   vertexShader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
   glCompileShader(vertexShader);
+
+  unsigned int geometryShader;
+  geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+  glShaderSource(geometryShader, 1, &geometryShaderSource, NULL);
+  glCompileShader(geometryShader);
 
   unsigned int fragmentShader;
   fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
   glCompileShader(fragmentShader);
 
+
   // se crea el programa del shader y se vinculan
   shaderProgram = glCreateProgram();
   glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, geometryShader);
   glAttachShader(shaderProgram, fragmentShader);
   glLinkProgram(shaderProgram);
+  unsigned int uniformSize = glGetUniformLocation(shaderProgram, "size");
+  float size = SNAKE_SIZE / (BOARD_WIDTH / 2.0);
+  glUniform1f(uniformSize, size);
   // una vez vinculados al programa ya podemos borrarlos
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
+  glDeleteShader(geometryShader);
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
@@ -99,6 +133,10 @@ void Game::render() {
   // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
   glUseProgram(shaderProgram);
+
+  unsigned int uniformSize = glGetUniformLocation(shaderProgram, "size");
+  float size = SNAKE_SIZE / (float)BOARD_HEIGHT;
+  glUniform1f(uniformSize, size);
   glBindVertexArray(VAO);
   glDrawArrays(GL_POINTS, 0, vertices.size()); // borrar despues
 }
@@ -168,6 +206,7 @@ void Game::debugSnake(Snake &snake, Food &food) {
             << snake.segments[0].position.y << std::endl;
   std::cout << "Food: " << food.getPos().x << " " << food.getPos().y
             << std::endl;
+  std::cout << "Size: " << snake.segments.size() << std::endl;
   std::cout << "----------------" << std::endl;
 }
 
