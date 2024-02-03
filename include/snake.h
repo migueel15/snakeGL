@@ -16,7 +16,7 @@ const int FOOD_SIZE = 10;
 const int MAX_SNAKE_SIZE =
     BOARD_HEIGHT * BOARD_WIDTH / (SNAKE_SIZE * SNAKE_SIZE);
 
-enum Direction { UP, DOWN, LEFT, RIGHT };
+enum Direction { UP = 0, LEFT , DOWN , RIGHT };
 
 struct SnakeSegment {
   glm::vec2 position;
