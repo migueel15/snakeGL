@@ -37,12 +37,6 @@ Game::Game() {
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-  // glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2),
-  //              vertices.data(), GL_DYNAMIC_DRAW);
-  //
-  // glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), 0);
-  // glEnableVertexAttribArray(0);
-
   const char *vertexShaderSource = "#version 330 core\n"
                                    "layout (location = 0) in vec2 position;\n"
                                    "void main()\n"
@@ -102,10 +96,7 @@ Game::Game() {
   glAttachShader(shaderProgram, geometryShader);
   glAttachShader(shaderProgram, fragmentShader);
   glLinkProgram(shaderProgram);
-  unsigned int uniformSize = glGetUniformLocation(shaderProgram, "size");
-  float size = SNAKE_SIZE / (BOARD_WIDTH / 2.0);
-  glUniform1f(uniformSize, size);
-  // una vez vinculados al programa ya podemos borrarlos
+
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
   glDeleteShader(geometryShader);
@@ -130,8 +121,6 @@ void Game::render() {
                vertices.data(), GL_DYNAMIC_DRAW);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), 0);
   glEnableVertexAttribArray(0);
-  // Use the shader program, bind VAO, and draw
-  // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
   glUseProgram(shaderProgram);
 
