@@ -39,17 +39,25 @@ Game::Game() {
 
   const char *vertexShaderSource = "#version 330 core\n"
                                    "layout (location = 0) in vec2 position;\n"
+                                   "layout (location = 1) in vec3 color;\n"
+                                   "out vec3 geomColor;\n"
                                    "void main()\n"
                                    "{\n"
                                    "   gl_Position = vec4(position,0.0,1.0);\n"
+                                   "   geomColor = color;\n"
                                    "}\0";
 
-// geometry shader that will get a point and render a square around it with size SNAKE_SIZE
+  // geometry shader that will get a point and render a square around it with size SNAKE_SIZE
+  // los colores se pasan en un array porque el geometry shader acepta como parametro un array del tamaño de los vertices
+  // en este caso solo uno pero aun asi debe ser un array y se accede al valor con indice 0
   const char *geometryShaderSource = "#version 330 core\n"
                                      "layout (points) in;\n"
                                      "layout (triangle_strip, max_vertices = 4) out;\n"
+                                     "in vec3 geomColor[];\n"
+                                     "out vec3 fragColor;\n"
                                      "uniform float size;\n"
                                      "void buildSquare(vec4 position) {"
+                                     "  fragColor = geomColor[0];\n"
                                      "  gl_Position = position + vec4(-size, -size, 0.0, 0.0);\n"
                                      "  EmitVertex();\n"
                                      "  gl_Position = position + vec4(-size, size, 0.0, 0.0);\n"
@@ -67,10 +75,11 @@ Game::Game() {
 
 
   const char *fragmentShaderSource = "#version 330 core\n"
+                                     "in vec3 fragColor;\n"
                                      "out vec4 FragColor;\n"
                                      "void main()\n"
                                      "{\n"
-                                     "   FragColor = vec4(1.0,1.0,1.0, 0.0f);\n"
+                                     "   FragColor = vec4(fragColor, 1.0);\n"
                                      "}\0";
 
 
@@ -117,10 +126,13 @@ void Game::render() {
   glClear(GL_COLOR_BUFFER_BIT);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2),
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
                vertices.data(), GL_DYNAMIC_DRAW);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), 0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                        (void *)offsetof(Vertex, color));
   glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
 
   glUseProgram(shaderProgram);
 
@@ -135,9 +147,9 @@ void Game::updateVertices(Snake &snake, Food &food) {
   vertices.clear();
   std::vector<glm::vec2> positions = snake.getSnakePositions();
   for (int i = 0; i < positions.size(); i++) {
-    vertices.push_back(positions[i]);
+    vertices.push_back({positions[i], SNAKE_COLOR});
   }
-  vertices.push_back(food.getNormalisedFood());
+  vertices.push_back({food.getNormalisedFood(), FOOD_COLOR});
 }
 
 void Game::sleep(int milliseconds) {
