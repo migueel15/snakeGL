@@ -9,7 +9,7 @@ const int BOARD_WIDTH = 500;
 const int BOARD_HEIGHT = 500;
 
 const int SNAKE_SIZE = 25;
-const float SNAKE_VELOCITY = 0.1f;
+const float SNAKE_VELOCITY = 0.1f; // each 100ms
 
 const int FOOD_SIZE = 10;
 
