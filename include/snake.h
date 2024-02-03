@@ -12,6 +12,8 @@ const int SNAKE_SIZE = 25;
 const float SNAKE_VELOCITY = 0.1f; // each 100ms
 
 const int FOOD_SIZE = 10;
+const glm::vec3 SNAKE_COLOR = glm::vec3(0.0f, 1.0f, 0.0f);
+const glm::vec3 FOOD_COLOR = glm::vec3(1.0f, 0.0f, 0.0f);
 
 const int MAX_SNAKE_SIZE =
     BOARD_HEIGHT * BOARD_WIDTH / (SNAKE_SIZE * SNAKE_SIZE);
