@@ -23,6 +23,7 @@ Game::Game() {
   }
 
   glfwMakeContextCurrent(window);
+  glfwSwapInterval(0); // desactiva el vsync
   gladLoadGL();
 
   // vincula el viewport al size de la ventana
