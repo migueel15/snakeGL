@@ -7,6 +7,11 @@
 #include <thread>
 #include <chrono>
 
+struct Vertex {
+  glm::vec2 position;
+  glm::vec3 color;
+};
+
 class Game {
 public:
   Game();
@@ -21,6 +26,6 @@ private:
   unsigned int VAO;
   unsigned int VBO;
   unsigned int shaderProgram;
-  std::vector<glm::vec2> vertices;
+  std::vector<Vertex> vertices;
 };
 
