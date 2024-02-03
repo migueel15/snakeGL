@@ -183,10 +183,13 @@ void Game::checkCollision(Snake &snake, Food &food) {
     snake.segments[0].position.y = BOARD_HEIGHT;
   }
 
-  if (snake.segments[0].position.x == food.getPos().x &&
-      snake.segments[0].position.y == food.getPos().y) {
-    snake.appendToSnake();
-    food.init();
+  // check if snake eats food
+  for(int i = 0; i < snake.segments.size(); i++) {
+    if (snake.segments[i].position.x == food.getPos().x &&
+        snake.segments[i].position.y == food.getPos().y) {
+      snake.appendToSnake();
+      food.init();
+    }
   }
 
   for (int i = 1; i < snake.segments.size(); i++) {

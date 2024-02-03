@@ -6,7 +6,6 @@ Food::Food() {
 }
 
 void Food::init() {
-  // position = glm::vec2(rand() % BOARD_WIDTH, rand() % BOARD_HEIGHT);
   float height = ((rand() % (int)BOARD_HEIGHT/SNAKE_SIZE) - (float)BOARD_HEIGHT/SNAKE_SIZE/2.0) * SNAKE_SIZE + BOARD_HEIGHT/2.0;
   float width = ((rand() % (int)BOARD_WIDTH/SNAKE_SIZE) - (float)BOARD_WIDTH/SNAKE_SIZE/2.0) * SNAKE_SIZE + BOARD_WIDTH/2.0;
   position = glm::vec2(width, height);
